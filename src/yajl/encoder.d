@@ -31,11 +31,8 @@
  */
 module yajl.encoder;
 
-import yajl.c.common;
 import yajl.c.gen;
-import yajl.exception;
-
-import core.memory : GC;
+import yajl.common;
 
 import std.traits;
 
@@ -272,26 +269,6 @@ string formatStatus(yajl_gen_status status) pure
     case yajl_gen_status.yajl_gen_invalid_string:
         return "Returned invalid utf8 string from yajl_gen_string";
     }
-}
-
-extern(C)
-{
-    void* yajlMalloc(void *ctx, size_t sz)
-    {
-        return GC.malloc(sz);
-    }
-
-    void* yajlRealloc(void *ctx, void * previous, size_t sz)
-    {
-        return GC.realloc(previous, sz);
-    }
-
-    void yajlFree(void *ctx, void * ptr)
-    {
-        GC.free(ptr);
-    }
-
-    yajl_alloc_funcs yajlAllocFuncs = yajl_alloc_funcs(&yajlMalloc, &yajlRealloc, &yajlFree);
 }
 
 template getFieldName(Type, size_t i)

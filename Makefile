@@ -22,10 +22,10 @@ else
 endif
 
 SRCS = \
-	src/yajl/exception.d \
+	src/yajl/common.d \
 	src/yajl/yajl.d \
 	src/yajl/encoder.d \
-	src/yajl/parser.d \
+	src/yajl/decoder.d \
 	src/yajl/c/common.d \
 	src/yajl/c/gen.d \
 	src/yajl/c/parse.d \
