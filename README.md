@@ -4,6 +4,22 @@ yajl-d is YAJL binding for D.
 
 yajl-d is a YAJL2 based implementation.
 
+# Install
+
+Run make for generating libyajld.a
+
+```sh
+make
+```
+
+## run example
+
+Need to link yajl library
+
+```sh
+dmd -Isrc libyajld.a -L-L/path/to/libdir -L-lyajl -run foo.d
+```
+
 # Link
 
 * [yajl](http://lloyd.github.com/yajl/)
