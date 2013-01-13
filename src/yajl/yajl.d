@@ -1,9 +1,37 @@
+// Written in the D programming language.
+
 module yajl.yajl;
 
-public import yajl.encoder;
+import yajl.common;
+import yajl.decoder;
+import yajl.encoder;
 
 /**
- * Short cut for Encoder.encode.
+ * Short-cut for Decoder.decode.
+ */
+T decode(T = JSONValue)(in string json, ref Decoder.Option opt)
+{
+    Decoder decoder = Decoder(opt);
+
+    if (decoder.decode(json))
+        return decoder.decodedValue!T;
+
+    throw new YajlException("Invalid json data");
+}
+
+/// ditto
+T decode(T = JSONValue)(in string json)
+{
+    Decoder decoder;
+
+    if (decoder.decode(json))
+        return decoder.decodedValue!T;
+
+    throw new YajlException("Invalid json data");
+}
+
+/**
+ * Short-cut for Encoder.encode.
  */
 string encode(T)(auto ref T value)
 {
