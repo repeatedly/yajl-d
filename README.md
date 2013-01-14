@@ -22,7 +22,53 @@ dmd -Isrc libyajld.a -L-L/path/to/libdir -L-lyajl -run example/encode_bench.d
 
 # Usage
 
-See example directory and unittest of yajl.encoder / yajl.decoder
+## Encode
+
+* yajl.encode(value) / yajl.encode(value, opt);
+
+```d
+import yajl.yajl;
+
+struct Hoge
+{ 
+    ulong id;
+    string word;
+    bool yes; 
+}
+
+// {"id":100,"word":"hey!","yes":true}
+string json = encode(Hoge(100, "hey!", true));
+```
+
+## Decode
+
+* yajl.decode(value) / yajl.decode(value, opt);
+
+```d
+import yajl.yajl;
+
+Hoge hoge = decode!Hoge(`{"id":100,"word":"hey!","yes":true}`);
+```
+
+* yajl.decoder.Decoder;
+
+Use decode and decodedValue methods.
+
+```d
+import yajl.decoder;
+
+Decoder decoder;
+if (decoder.decode(`{"id":100,"word":"hey!","yes":true}`) {
+    Hoge hoge = decoder.decodedValue!Hoge;
+    // ...
+}
+```
+
+Decoder#decode is a straming decoder, so you can pass the insufficient json to this method. If Decoder#decode can't parse completely, Decoder#decode returns false.
+
+## Encoder.Option and Decoder.Option
+
+encode and decode can take each Option argument. If you want to know more details, see unittest of yajl.encoder / yajl.decoder.
 
 # Link
 
