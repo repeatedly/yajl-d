@@ -129,8 +129,10 @@ struct Decoder
 
     void clear()
     {
-        if (_handle !is null)
+        if (_handle !is null) {
             yajl_free(_handle);
+            _handle = null;
+        }
     }
 
     void checkStatus(yajl_status status, lazy string json)

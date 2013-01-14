@@ -82,8 +82,7 @@ struct Encoder
     {
         // YAJL2 doesn't provide reset API to resue object.
         // See: https://github.com/lloyd/yajl/pull/76
-        if (_gen is null)
-            initialize();
+        initialize();
 
         yajlGenerate(_gen, value);
 
@@ -101,13 +100,16 @@ struct Encoder
   private:
     void initialize()
     {
-        _gen = yajl_gen_alloc(&yajlAllocFuncs);
+        if (_gen is null)
+            _gen = yajl_gen_alloc(&yajlAllocFuncs);
     }
 
     void clear()
     {
-        if (_gen !is null)
+        if (_gen !is null) {
             yajl_gen_free(_gen);
+            _gen = null;
+        }
     }
 }
 
