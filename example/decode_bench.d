@@ -14,7 +14,7 @@ void main()
             parseJSON(`{"id":1000,"name":"shinobu","height":169.5}`);
         }
         sw.stop();
-        writefln("json %s QPS: ", cast(real)Num / sw.peek().msecs * 1000);
+        writefln("json %s QPS: ", Num / sw.peek().to!("seconds", real));
     }
     {
         auto sw = StopWatch(AutoStart.yes);
@@ -26,6 +26,6 @@ void main()
             decoder.decodedValue;
         }
         sw.stop();
-        writefln("yajl %s QPS: ", cast(real)Num / sw.peek().msecs * 1000);
+        writefln("yajl %s QPS: ", Num / sw.peek().to!("seconds", real));
     }
 }
