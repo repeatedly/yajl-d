@@ -9,6 +9,13 @@
  * if (decoder.decode(`{"foo":"bar"}`))
  *     assert(decoder.decodedValue!(string[string]) == ["foo":"bar"]);
  * -----
+ *
+ * See_Also:
+ *  $(LINK2 http://lloyd.github.com/yajl/yajl-2.0.1/yajl__parse_8h.html, Yajl parse header)$(BR)
+ *
+ * Copyright: Copyright Masahiro Nakagawa 2013-.
+ * License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+ * Authors:   Masahiro Nakagawa
  */
 module yajl.decoder;
 
@@ -245,6 +252,8 @@ extern(C)
         return 1;
     }
 
+    /**
+     * callbackInt and callbackFloat are not used when callbackNumber is passed.
     int callbackInt(void* ctx, long number)
     {
         JSONValue value;
@@ -264,18 +273,26 @@ extern(C)
 
         return 1;
     }
+    */
 
     int callbackNumber(void* ctx, const(char)* buf, size_t len)
     {
-        const(char)[] numStr = buf[0..len];
+        static bool checkFloatFormat(const(char)* b, size_t l)
+        {
+            import std.c.string;
+
+            return memchr(b, '.', l) ||
+                   memchr(b, 'e', l) ||
+                   memchr(b, 'E', l);
+        }
 
         JSONValue value;
-        try {
-            value.integer = to!long(numStr);
-            value.type = JSON_TYPE.INTEGER;
-        } catch (ConvException e) {
-            value.floating = to!double(numStr);
+        if (checkFloatFormat(buf, len)) {
+            value.floating = to!double(buf[0..len]);
             value.type = JSON_TYPE.FLOAT;
+        } else {
+            value.integer = to!long(buf[0..len]);
+            value.type = JSON_TYPE.INTEGER;
         }
         setParsedValue(ctx, value);
 
@@ -352,8 +369,8 @@ extern(C)
 
     yajl_callbacks yajlCallbacks = yajl_callbacks(&callbackNull,
                                                   &callbackBool,
-                                                  &callbackInt,
-                                                  &callbackFloat,
+                                                  null,
+                                                  null,
                                                   &callbackNumber,
                                                   &callbackString,
                                                   &callbackStartMap,
