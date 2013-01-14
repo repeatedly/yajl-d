@@ -1,4 +1,5 @@
 import yajl.decoder;
+import yajl.yajl;
 
 import std.json;
 import std.datetime;
@@ -14,7 +15,15 @@ void main()
             parseJSON(`{"id":1000,"name":"shinobu","height":169.5}`);
         }
         sw.stop();
-        writefln("json %s QPS: ", Num / sw.peek().to!("seconds", real));
+        writefln("json:         %s QPS", Num / sw.peek().to!("seconds", real));
+    }
+    {
+        auto sw = StopWatch(AutoStart.yes);
+        foreach (i; 0..Num) {
+            decode(`{"id":1000,"name":"shinobu","height":169.5}`);
+        }
+        sw.stop();
+        writefln("yajl(one):    %s QPS", Num / sw.peek().to!("seconds", real));
     }
     {
         auto sw = StopWatch(AutoStart.yes);
@@ -26,6 +35,6 @@ void main()
             decoder.decodedValue;
         }
         sw.stop();
-        writefln("yajl %s QPS: ", Num / sw.peek().to!("seconds", real));
+        writefln("yajl(stream): %s QPS", Num / sw.peek().to!("seconds", real));
     }
 }

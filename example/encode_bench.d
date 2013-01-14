@@ -32,7 +32,7 @@ void main()
             toJSON(toJSONValue(handa));
         }
         sw.stop();
-        writefln("json %s QPS: ", Num / sw.peek().to!("seconds", real));
+        writefln("json: %s QPS", Num / sw.peek().to!("seconds", real));
     }
     {
         auto sw = StopWatch(AutoStart.yes);
@@ -40,7 +40,7 @@ void main()
             encode(handa);
         }
         sw.stop();
-        writefln("yajl %s QPS: ", Num / sw.peek().to!("seconds", real));
+        writefln("yajl: %s QPS", Num / sw.peek().to!("seconds", real));
     }
 }
 
