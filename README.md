@@ -20,6 +20,10 @@ Need to link yajl library
 dmd -Isrc libyajld.a -L-L/path/to/libdir -L-lyajl -run example/encode_bench.d
 ```
 
+# Usage
+
+See example directory and unittest of yajl.encoder / yajl.decoder
+
 # Link
 
 * [yajl](http://lloyd.github.com/yajl/)

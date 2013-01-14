@@ -81,7 +81,7 @@ struct Decoder
     @property
     {
         /**
-         * Retrieve the decoded object.
+         * Returns the decoded object.
          */
         nothrow ref T decodedValue(T = JSONValue)() if (is(T : JSONValue))
         {
@@ -96,21 +96,21 @@ struct Decoder
     }
 
     /**
-     * Try to decode an argument and returns the success or failure.
+     * Try to decode the $(D_PARAM json). The decoded result is retrieved from $(LREF decodedValue).
+     *
+     * Returns:
+     *  true if parsing succeeded. Passed json is insufficient, returns false.
+     *
+     * Throws:
+     *  a YajlException when parsing error ocurred.
      */
     bool decode(in string json)
     {
         initialize();
 
-        const status = yajl_parse(_handle, cast(const(ubyte)*)json.ptr, json.length);
-        if (status != yajl_status.yajl_status_ok)
-            throw new YajlException(formatStatus(_handle, json));
-
+        checkStatus(yajl_parse(_handle, cast(const(ubyte)*)json.ptr, json.length), json);
         if (_nested == 0) {
-            const compStatus = yajl_complete_parse(_handle);
-            if (compStatus != yajl_status.yajl_status_ok)
-                throw new YajlException(formatStatus(_handle, json));
-
+            checkStatus(yajl_complete_parse(_handle), json);
             return true;
         }
 
@@ -132,6 +132,12 @@ struct Decoder
         if (_handle !is null)
             yajl_free(_handle);
     }
+
+    void checkStatus(yajl_status status, lazy string json)
+    {
+        if (status != yajl_status.yajl_status_ok)
+            throw new YajlException(formatStatus(_handle, json));
+    }
 }
 
 unittest
@@ -152,16 +158,22 @@ unittest
     immutable json = `{"id":1000,"name":"shinobu","height":170.0}`;
     { // normal
         Decoder decoder;
-        if (decoder.decode(json))
-            assert(decoder.decodedValue!Handa == handa);
+        assert(decoder.decode(json));
+        assert(decoder.decodedValue!Handa == handa);
+    }
+    { // with splitted json
+        Decoder decoder;
+        assert(!decoder.decode(`{"id":1000,"name":"shino`));
+        assert(decoder.decode(`bu","height":170.0}`));
+        assert(decoder.decodedValue!Handa == handa);
     }
     { // with comments
         Decoder.Option opt;
         opt.allowComments = true;
 
         Decoder decoder = Decoder(opt);
-        if (decoder.decode(`{/* test */ "foo":"bar"}`))
-            assert(decoder.decodedValue!(string[string]) == ["foo":"bar"]);
+        assert(decoder.decode(`{/* test */ "foo":"bar"}`));
+        assert(decoder.decodedValue!(string[string]) == ["foo":"bar"]);
     }
     { // with multiple values
         Decoder.Option opt;
@@ -170,8 +182,8 @@ unittest
         int i;
         Decoder decoder = Decoder(opt);
         foreach (_; 0..10) {
-            if (decoder.decode(json))
-                assert(decoder.decodedValue!Handa == handa);
+            assert(decoder.decode(json));
+            assert(decoder.decodedValue!Handa == handa);
             i++;
         }
         assert(i == 10);
