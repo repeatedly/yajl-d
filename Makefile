@@ -21,6 +21,8 @@ else
 	DFLAGS += -O -release -nofloat -inline -noboundscheck
 endif
 
+D_INSTALL_PATH ?= ~/usr/local/d
+
 SRCS = \
 	src/yajl/common.d \
 	src/yajl/yajl.d \
@@ -36,6 +38,12 @@ target: $(LIB)
 
 $(LIB): $(SRCS)
 	$(DMD) $(DFLAGS) -lib -of$@ $(SRCS);
+
+install: $(LIB)
+	mkdir -p $(D_INSTALL_PATH)/lib
+	mkdir -p $(D_INSTALL_PATH)/src
+	cp $(LIB) $(D_INSTALL_PATH)/lib
+	cp -r src/yajl $(D_INSTALL_PATH)/src
 
 clean:
 	-rm -f $(LIB_NAME).o $(LIB)
