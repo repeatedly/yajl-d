@@ -2,7 +2,7 @@
 
 yajl-d is YAJL binding for D.
 
-yajl-d is a YAJL2 based implementation.
+yajl-d is based on YAJL2.
 
 # Install
 
@@ -17,7 +17,7 @@ make
 Need to link yajl library
 
 ```sh
-dmd -Isrc libyajld.a -L-L/path/to/libdir -L-lyajl -run foo.d
+dmd -Isrc libyajld.a -L-L/path/to/libdir -L-lyajl -run example/encode_bench.d
 ```
 
 # Link
