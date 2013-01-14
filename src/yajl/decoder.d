@@ -83,15 +83,15 @@ struct Decoder
         /**
          * Returns the decoded object.
          */
-        nothrow ref T decodedValue(T = JSONValue)() if (is(T : JSONValue))
+        nothrow ref inout(T) decodedValue(T = JSONValue)() inout if (is(T : JSONValue))
         {
             return _stack[0].value;
         }
 
         /// ditto
-        T decodedValue(T = JSONValue)() if (!is(T : JSONValue))
+        inout(T) decodedValue(T = JSONValue)() inout if (!is(T : JSONValue))
         {
-            return fromJSONValue!T(_stack[0].value);
+            return cast(inout(T))fromJSONValue!T(_stack[0].value);
         }
     }
 
@@ -135,10 +135,26 @@ struct Decoder
         }
     }
 
-    void checkStatus(yajl_status status, lazy string json)
+    @safe
+    void checkStatus(in yajl_status status, lazy string json)
     {
         if (status != yajl_status.yajl_status_ok)
             throw new YajlException(formatStatus(_handle, json));
+    }
+
+    @trusted
+    static void setDecoderConfig(yajl_handle handle, ref Decoder.Option opt)
+    {
+        if (opt.allowComments)
+            yajl_config(handle, yajl_option.yajl_allow_comments, 1);
+        if (opt.dontValidateStrings)
+            yajl_config(handle, yajl_option.yajl_dont_validate_strings, 1);
+        if (opt.allowTrailingGarbage)
+            yajl_config(handle, yajl_option.yajl_allow_trailing_garbage, 1);
+        if (opt.allowMultipleValues)
+            yajl_config(handle, yajl_option.yajl_allow_multiple_values, 1);
+        if (opt.allowPartialValue)
+            yajl_config(handle, yajl_option.yajl_allow_partial_values, 1);
     }
 }
 
@@ -194,6 +210,7 @@ unittest
 
 private:
 
+@trusted
 string formatStatus(yajl_handle handle, in string json)
 {
     import std.c.string : strlen;
@@ -202,21 +219,6 @@ string formatStatus(yajl_handle handle, in string json)
     scope(exit) { yajl_free_error(handle, msg); }
 
     return cast(string)(msg[0..strlen(cast(const(char*))msg)].dup);
-}
-
-@trusted
-void setDecoderConfig(yajl_handle handle, ref Decoder.Option opt)
-{
-    if (opt.allowComments)
-        yajl_config(handle, yajl_option.yajl_allow_comments, 1);
-    if (opt.dontValidateStrings)
-        yajl_config(handle, yajl_option.yajl_dont_validate_strings, 1);
-    if (opt.allowTrailingGarbage)
-        yajl_config(handle, yajl_option.yajl_allow_trailing_garbage, 1);
-    if (opt.allowMultipleValues)
-        yajl_config(handle, yajl_option.yajl_allow_multiple_values, 1);
-    if (opt.allowPartialValue)
-        yajl_config(handle, yajl_option.yajl_allow_partial_values, 1);
 }
 
 @trusted

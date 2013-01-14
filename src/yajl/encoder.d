@@ -111,6 +111,23 @@ struct Encoder
             _gen = null;
         }
     }
+
+    @trusted
+    static void setEncoderConfig(yajl_gen gen, ref Encoder.Option opt)
+    {
+        import std.string : toStringz;
+
+        if (opt.beautify)
+            yajl_gen_config(gen, yajl_gen_option.yajl_gen_beautify, 1);
+        if (opt.validateUTF8)
+            yajl_gen_config(gen, yajl_gen_option.yajl_gen_validate_utf8, 1);
+        if (opt.escapeSolidus)
+            yajl_gen_config(gen, yajl_gen_option.yajl_gen_escape_solidus, 1);
+        if (opt.indentString)
+            yajl_gen_config(gen, yajl_gen_option.yajl_gen_indent_string, toStringz(opt.indentString));
+        //if (opt.printCallback)
+        //    yajl_gen_config(gen, yajl_gen_option.yajl_gen_print_callback, opt.printCallback);
+    }
 }
 
 unittest
@@ -142,23 +159,6 @@ unittest
 }
 
 private:
-
-@trusted
-void setEncoderConfig(yajl_gen gen, ref Encoder.Option opt)
-{
-    import std.string : toStringz;
-
-    if (opt.beautify)
-        yajl_gen_config(gen, yajl_gen_option.yajl_gen_beautify, 1);
-    if (opt.validateUTF8)
-        yajl_gen_config(gen, yajl_gen_option.yajl_gen_validate_utf8, 1);
-    if (opt.escapeSolidus)
-        yajl_gen_config(gen, yajl_gen_option.yajl_gen_escape_solidus, 1);
-    if (opt.indentString)
-        yajl_gen_config(gen, yajl_gen_option.yajl_gen_indent_string, toStringz(opt.indentString));
-    //if (opt.printCallback)
-    //    yajl_gen_config(gen, yajl_gen_option.yajl_gen_print_callback, opt.printCallback);
-}
 
 @trusted
 void yajlGenerate(T)(yajl_gen gen, auto ref T value)
@@ -245,13 +245,15 @@ void yajlGenerate(T)(yajl_gen gen, auto ref T value)
 }
 
 // status check is needed?
+@safe
 void checkStatus(yajl_gen_status status) pure
 {
     if (status != yajl_gen_status.yajl_gen_status_ok)
         throw new YajlException(formatStatus(status));
 }
 
-string formatStatus(yajl_gen_status status) pure
+@safe
+string formatStatus(in yajl_gen_status status) pure
 {
     final switch (status) {
 	case yajl_gen_status.yajl_gen_status_ok:
