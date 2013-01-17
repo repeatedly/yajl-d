@@ -9,7 +9,7 @@ import yajl.encoder;
 /**
  * Short-cut for Decoder.decode.
  */
-T decode(T = JSONValue)(in string json, ref Decoder.Option opt)
+T decode(T = JSONValue)(in const(char)[] json, ref Decoder.Option opt)
 {
     Decoder decoder = Decoder(opt);
 
@@ -20,7 +20,7 @@ T decode(T = JSONValue)(in string json, ref Decoder.Option opt)
 }
 
 /// ditto
-T decode(T = JSONValue)(in string json)
+T decode(T = JSONValue)(in const(char)[] json)
 {
     Decoder decoder;
 

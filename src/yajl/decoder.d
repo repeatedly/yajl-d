@@ -104,7 +104,7 @@ struct Decoder
      * Throws:
      *  a YajlException when parsing error ocurred.
      */
-    bool decode(in string json)
+    bool decode(in const(char)[] json)
     {
         initialize();
 
@@ -136,7 +136,7 @@ struct Decoder
     }
 
     @safe
-    void checkStatus(in yajl_status status, lazy string json)
+    void checkStatus(in yajl_status status, lazy const(char)[] json)
     {
         if (status != yajl_status.yajl_status_ok)
             throw new YajlException(formatStatus(_handle, json));
@@ -211,7 +211,7 @@ unittest
 private:
 
 @trusted
-string formatStatus(yajl_handle handle, in string json)
+string formatStatus(yajl_handle handle, in const(char)[] json)
 {
     import std.c.string : strlen;
 
