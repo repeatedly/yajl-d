@@ -1,8 +1,8 @@
 # YAJL binding for D
 
-yajl-d is YAJL binding for D.
+yajl-d is a YAJL binding for D.
 
-yajl-d is based on YAJL2.
+yajl-d is based on YAJL2. I tested with YAJL 2.0.1.
 
 # Install
 
@@ -24,7 +24,7 @@ dmd -Isrc libyajld.a -L-L/path/to/libdir -L-lyajl -run example/encode_bench.d
 
 ## Encode
 
-* yajl.encode(value) / yajl.encode(value, opt);
+* yajl.encode(value) / yajl.encode(value, opt)
 
 ```d
 import yajl.yajl;
@@ -42,7 +42,7 @@ string json = encode(Hoge(100, "hey!", true));
 
 ## Decode
 
-* yajl.decode(value) / yajl.decode(value, opt);
+* yajl.decode(value) / yajl.decode(value, opt)
 
 ```d
 import yajl.yajl;
@@ -50,7 +50,7 @@ import yajl.yajl;
 Hoge hoge = decode!Hoge(`{"id":100,"word":"hey!","yes":true}`);
 ```
 
-* yajl.decoder.Decoder;
+* yajl.decoder.Decoder
 
 Use decode and decodedValue methods.
 
@@ -69,6 +69,11 @@ Decoder#decode is a straming decoder, so you can pass the insufficient json to t
 ## Encoder.Option and Decoder.Option
 
 encode and decode can take each Option argument. If you want to know more details, see unittest of yajl.encoder / yajl.decoder.
+
+# TODO
+
+* Direct conversion at decode
+* Test on Windows
 
 # Link
 
