@@ -1,10 +1,7 @@
 # build mode: 32bit or 64bit
 MODEL ?= $(shell getconf LONG_BIT)
 YAJL ?= yajl
-
-ifeq (,$(DMD))
-	DMD := dmd
-endif
+DMD ?= dmd
 
 ifeq (,$(YAJL))
 	$(error There is no yajl library)
