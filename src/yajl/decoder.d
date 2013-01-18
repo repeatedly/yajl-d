@@ -23,7 +23,7 @@ import yajl.c.parse;
 import yajl.common;
 
 public import std.json;
-import std.array : popFront;
+import std.array : popBack;
 import std.conv;
 
 
@@ -165,15 +165,16 @@ unittest
         ulong id;
         string name;
         double height;
+        int[] arr;
 
         bool opEquals(const Handa other)
         {
-            return (id == other.id) && (name == other.name) && (height == other.height);
+            return (id == other.id) && (name == other.name) && (height == other.height) && (arr == other.arr);
         }
     }
 
-    Handa handa = Handa(1000, "shinobu", 170.0);
-    immutable json = `{"id":1000,"name":"shinobu","height":170.0}`;
+    Handa handa = Handa(1000, "shinobu", 170.0, [1, 2]);
+    immutable json = `{"id":1000,"name":"shinobu","height":170.0,"arr":[1,2]}`;
     { // normal
         Decoder decoder;
         assert(decoder.decode(json));
@@ -182,7 +183,7 @@ unittest
     { // with splitted json
         Decoder decoder;
         assert(!decoder.decode(`{"id":1000,"name":"shino`));
-        assert(decoder.decode(`bu","height":170.0}`));
+        assert(decoder.decode(`bu","height":170.0,"arr":[1,2]}`));
         assert(decoder.decodedValue!Handa == handa);
     }
     { // with comments
@@ -205,6 +206,22 @@ unittest
             i++;
         }
         assert(i == 10);
+    }
+    { // json array
+        static struct Sect
+        {
+            string attr = "sect";
+
+            bool opEquals(const Sect other)
+            {
+                return attr == other.attr;
+            }
+        }
+        immutable composed = `[{"attr":"sect"},{"attr":"sect"},{"attr":"sect"}]`;
+
+        Decoder decoder;
+        assert(decoder.decode(composed));
+        assert(decoder.decodedValue!(Sect[]) == [Sect(), Sect(), Sect()]);
     }
 }
 
@@ -257,17 +274,23 @@ void setParsedValue(T)(void* ctx, auto ref T value)
         static assert(false, "Non supported type");
     }
 
+    setParsedValueToContainer(decoder, v);
+}
+
+@trusted
+void setParsedValueToContainer(Decoder* decoder, ref JSONValue value)
+{
     auto container = &decoder._stack[decoder._nested - 1];
     final switch (container.type) {
     case Decoder.ContainerType.arrayItem:
-        container.value.array ~= v;
+        container.value.array ~= value;
         break;
     case Decoder.ContainerType.mapKey:
-        container.key = v.str;
+        container.key = value.str;
         container.type = Decoder.ContainerType.mapValue;
         break;
     case Decoder.ContainerType.mapValue:
-        container.value.object[container.key] = v;
+        container.value.object[container.key] = value;
         container.type = Decoder.ContainerType.mapKey;
         break;
     }
@@ -288,29 +311,6 @@ extern(C)
 
         return 1;
     }
-
-    /**
-     * callbackInt and callbackFloat are not used when callbackNumber is passed.
-    int callbackInt(void* ctx, long number)
-    {
-        JSONValue value;
-        value.type = JSON_TYPE.INTEGER;
-        value.integer = number;
-        setParsedValue(ctx, value);
-
-        return 1;
-    }
-
-    int callbackFloat(void* ctx, double number)
-    {
-        JSONValue value;
-        value.type = JSON_TYPE.FLOAT;
-        value.floating = number;
-        setParsedValue(ctx, value);
-
-        return 1;
-    }
-    */
 
     int callbackNumber(void* ctx, const(char)* buf, size_t len)
     {
@@ -362,9 +362,10 @@ extern(C)
     {
         Decoder* decoder = cast(Decoder*)ctx;
         decoder._nested--;
-
-        if (decoder._stack.length > 1)
-            decoder._stack.popFront();
+        if (decoder._nested > 0) {
+            setParsedValueToContainer(decoder, decoder._stack[decoder._nested].value);
+            decoder._stack.popBack();
+        }
 
         return 1;
     }
@@ -386,9 +387,10 @@ extern(C)
     {
         Decoder* decoder = cast(Decoder*)ctx;
         decoder._nested--;
-
-        if (decoder._stack.length > 1)
-            decoder._stack.popFront();
+        if (decoder._nested > 0) {
+            setParsedValueToContainer(decoder, decoder._stack[decoder._nested].value);
+            decoder._stack.popBack();
+        }
 
         return 1;
     }
