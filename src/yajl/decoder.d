@@ -222,27 +222,52 @@ string formatStatus(yajl_handle handle, in const(char)[] json)
 }
 
 @trusted
-void setParsedValue(void* ctx, JSONValue value)
+void setParsedValue(T)(void* ctx, auto ref T value)
 {
-    setParsedValue(ctx, value);
-}
+    import std.traits;
 
-@trusted
-void setParsedValue(void* ctx, ref JSONValue value)
-{
     Decoder* decoder = cast(Decoder*)ctx;
-    
+    JSONValue v;
+
+    static if (is(T == typeof(null)))
+    {
+        v.type = JSON_TYPE.NULL;
+    }
+    else static if (isBoolean!T)
+    {
+        v.type = value ? JSON_TYPE.TRUE : JSON_TYPE.FALSE;
+    }
+    else static if (isIntegral!T)
+    {
+        v.integer = value;
+        v.type = JSON_TYPE.INTEGER;
+    }
+    else static if (isFloatingPoint!T)
+    {
+        v.floating = value;
+        v.type = JSON_TYPE.FLOAT;
+    }
+    else static if (isSomeString!T)
+    {
+        v.str = value;
+        v.type = JSON_TYPE.STRING;
+    }
+    else
+    {
+        static assert(false, "Non supported type");
+    }
+
     auto container = &decoder._stack[decoder._nested - 1];
     final switch (container.type) {
     case Decoder.ContainerType.arrayItem:
-        container.value.array ~= value;
+        container.value.array ~= v;
         break;
     case Decoder.ContainerType.mapKey:
-        container.key = value.str;
+        container.key = v.str;
         container.type = Decoder.ContainerType.mapValue;
         break;
     case Decoder.ContainerType.mapValue:
-        container.value.object[container.key] = value;
+        container.value.object[container.key] = v;
         container.type = Decoder.ContainerType.mapKey;
         break;
     }
@@ -252,18 +277,14 @@ extern(C)
 {
     int callbackNull(void* ctx)
     {
-        JSONValue value;
-        value.type = JSON_TYPE.NULL;
-        setParsedValue(ctx, value);
+        setParsedValue(ctx, null);
 
         return 1;
     }
 
     int callbackBool(void* ctx, int boolean)
     {
-        JSONValue value;
-        value.type = boolean ? JSON_TYPE.TRUE : JSON_TYPE.FALSE;
-        setParsedValue(ctx, value);
+        setParsedValue(ctx, boolean);
 
         return 1;
     }
@@ -302,25 +323,17 @@ extern(C)
                    memchr(b, 'E', l);
         }
 
-        JSONValue value;
-        if (checkFloatFormat(buf, len)) {
-            value.floating = to!double(buf[0..len]);
-            value.type = JSON_TYPE.FLOAT;
-        } else {
-            value.integer = to!long(buf[0..len]);
-            value.type = JSON_TYPE.INTEGER;
-        }
-        setParsedValue(ctx, value);
+        if (checkFloatFormat(buf, len))
+            setParsedValue(ctx, to!real(buf[0..len]));
+        else
+            setParsedValue(ctx, to!long(buf[0..len]));
 
         return 1;
     }
 
     int callbackString(void* ctx, const(ubyte)* buf, size_t len)
     {
-        JSONValue value;
-        value.type = JSON_TYPE.STRING;
-        value.str = cast(string)(buf[0..len]);
-        setParsedValue(ctx, value);
+        setParsedValue(ctx, cast(string)(buf[0..len]));
 
         return 1;
     }
@@ -340,10 +353,7 @@ extern(C)
 
     int callbackMapKey(void* ctx, const(ubyte)* buf, size_t len)
     {
-        JSONValue value;
-        value.type = JSON_TYPE.STRING;
-        value.str = cast(string)(buf[0..len].dup);
-        setParsedValue(ctx, value);
+        setParsedValue(ctx, cast(string)(buf[0..len]));
 
         return 1;
     }
@@ -399,6 +409,9 @@ extern(C)
 @trusted
 T fromJSONValue(T)(ref const JSONValue value)
 {
+    import std.array : array;
+    import std.algorithm : map;
+    import std.range : ElementType;
     import std.traits;
 
     @trusted
