@@ -307,7 +307,7 @@ extern(C)
 
     int callbackBool(void* ctx, int boolean)
     {
-        setParsedValue(ctx, boolean);
+        setParsedValue(ctx, boolean != 0);
 
         return 1;
     }
