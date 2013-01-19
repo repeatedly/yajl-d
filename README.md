@@ -2,7 +2,7 @@
 
 yajl-d is a YAJL binding for D.
 
-yajl-d is based on YAJL2. I tested with YAJL 2.0.1.
+yajl-d is based on YAJL2 and tested with YAJL 2.0.4.
 
 # Install
 
@@ -72,7 +72,7 @@ encode and decode can take each Option argument. If you want to know more detail
 
 # TODO
 
-* Direct conversion at decode
+* Limited direct conversion decoding
 * Test on Windows
 
 # Link
