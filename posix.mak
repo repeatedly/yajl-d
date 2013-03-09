@@ -44,3 +44,11 @@ install: $(LIB)
 
 clean:
 	-rm -f $(LIB_NAME).o $(LIB)
+
+MAIN_FILE = "empty_yajl_unittest.d"
+
+unittest:
+	make -f posix.mak
+	echo 'import yajl.yajl; void main(){}' > $(MAIN_FILE)
+	$(DMD) $(DFLAGS) -unittest -of$(LIB) -L-L$(LIBDIR) $(SRCS) libyajld.a -L-lyajl -run $(MAIN_FILE)
+	rm $(MAIN_FILE)
