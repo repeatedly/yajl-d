@@ -17,7 +17,7 @@ make
 Need to link yajl library
 
 ```sh
-dmd -Isrc libyajld.a -L-L/path/to/libdir -L-lyajl -run example/encode_bench.d
+dmd -Isrc libyajl-d.a -L-L/path/to/libdir -L-lyajl -run example/encode_bench.d
 ```
 
 # Usage
