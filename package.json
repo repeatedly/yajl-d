@@ -1,5 +1,5 @@
 {
-    "name":        "yajl-d",
+    "name":        "yajl",
     "description": "YAJL binding for D.",
     "authors":     ["Masahiro Nakagawa"],
     "homepage":    "https://github.com/repeatedly/yajl-d",
