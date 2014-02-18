@@ -87,6 +87,8 @@ CPU: 2.6 GHz Intel Core i7<br />
   </tr>
 </table>
 
+Benchmark code can be found in the `example` directory.
+
 # TODO
 
 * Limited direct conversion decoding
