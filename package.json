@@ -5,7 +5,6 @@
     "homepage":    "https://github.com/repeatedly/yajl-d",
     "license":     "Boost Software License, Version 1.0",
     "importPaths": ["src"],
-    "targetType":  "library",
-    "targetName":  "yajl-d",
+    "targetType":  "sourceLibrary",
     "libs":        ["yajl"]
 }
