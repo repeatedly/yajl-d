@@ -1,6 +1,7 @@
 # build mode: 32bit or 64bit
 MODEL ?= $(shell getconf LONG_BIT)
 YAJL ?= yajl
+YAJL_OPTS = 
 DMD ?= dmd
 
 ifeq (,$(YAJL))
@@ -16,6 +17,12 @@ ifeq ($(BUILD),debug)
 	DFLAGS += -g -debug
 else
 	DFLAGS += -O -release -nofloat -inline -noboundscheck
+endif
+
+ifeq (,$(YAJL_LIBDIR))
+	YAJL_OPTS = 
+else
+	YAJL_OPTS = -L-L$(YAJL_LIBDIR)
 endif
 
 D_INSTALL_PATH ?= ~/usr/local/d
@@ -50,5 +57,5 @@ MAIN_FILE = "empty_yajl_unittest.d"
 unittest:
 	make -f posix.mak
 	echo 'import yajl.yajl; void main(){}' > $(MAIN_FILE)
-	$(DMD) $(DFLAGS) -unittest -of$(LIB) -L-L$(LIBDIR) $(SRCS) $(LIB) -L-lyajl -run $(MAIN_FILE)
+	$(DMD) $(DFLAGS) -unittest -of$(LIB) $(YAJL_OPTS) $(SRCS) $(LIB) -L-lyajl -run $(MAIN_FILE)
 	rm $(MAIN_FILE)
