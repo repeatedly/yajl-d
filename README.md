@@ -2,7 +2,7 @@
 
 yajl-d is a YAJL binding for D.
 
-yajl-d is based on YAJL2 and tested with YAJL 2.0.4.
+yajl-d is based on YAJL2 and tested with YAJL 2.0.5.
 
 # Install
 
@@ -69,6 +69,23 @@ Decoder#decode is a straming decoder, so you can pass the insufficient json to t
 ## Encoder.Option and Decoder.Option
 
 encode and decode can take each Option argument. If you want to know more details, see unittest of yajl.encoder / yajl.decoder.
+
+# Perfomance comparison
+
+OS: Mac OS X ver 10.9<br />
+CPU: 2.6 GHz Intel Core i7<br />
+
+<table>
+  <tr>
+    <th></th><th>encode(QPS)</th><th>decode(QPS)</th><th>streaming decode(QPS)</th>
+  </tr>
+  <tr>
+    <td>std.json</td><td>227461</td><td>228267</td><td>Not supported</td>
+  </tr>
+  <tr>
+    <td>yajl-d</td><td>656034</td><td>524611</td><td>803640</td>
+  </tr>
+</table>
 
 # TODO
 
