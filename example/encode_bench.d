@@ -2,6 +2,7 @@ import yajl.yajl;
 
 import std.datetime;
 import std.stdio;
+import std.typecons;
 
 static struct Handa
 {
@@ -46,7 +47,6 @@ void main()
 
 import std.conv;
 import std.json;
-import std.typecons;
 import std.traits;
 
 @trusted
@@ -67,64 +67,40 @@ JSONValue toJSONValue(T)(auto ref T value)
 {
     JSONValue result;
 
-    static if (isBoolean!T)
+    static if (isTuple!T)
     {
-        result.type = value ? JSON_TYPE.TRUE : JSON_TYPE.FALSE;
-    }
-    else static if (isIntegral!T)
-    {
-        result.type = JSON_TYPE.INTEGER;
-        result.integer = value;
-    }
-    else static if (isFloatingPoint!T)
-    {
-        result.type = JSON_TYPE.FLOAT;
-        result.floating = value;
-    }
-    else static if (isSomeString!T)
-    {
-        result.type = JSON_TYPE.STRING;
-        result.str = text(value);
-    }
-    else static if (isArray!T)
-    {
-        result.type = JSON_TYPE.ARRAY;
-        result.array = array(map!((a){ return a.toJSONValue(); })(value));
-    }
-    else static if (isAssociativeArray!T)
-    {
-        result.type = JSON_TYPE.OBJECT;
-        foreach (k, v; value)
-            result.object[k] = v.toJSONValue();
-    }
-    else static if (isTuple!T)
-    {
-        result.type = JSON_TYPE.ARRAY;
+        JSONValue[] arr;
         foreach (i, Type; T.Types)
-            result.array ~= value[i].toJSONValue();
+            arr ~= value[i].toJSONValue();
+        result = arr;
     }
     else static if (is(T == struct) || is(T == class))
     {
         static if (is(T == class))
         {
             if (value is null) {
-                result.type = JSON_TYPE.NULL;
+                result = null;
                 return result;
             }
         }
 
-        result.type = JSON_TYPE.OBJECT;
+        JSONValue[string] obj;
         foreach(i, v; value.tupleof) {
             static if (isNullable!(typeof(v)))
             {
                 if (!v.isNull)
-                    result.object[getFieldName!(T, i)] = v.get.toJSONValue();
+                    obj[getFieldName!(T, i)] = v.get.toJSONValue();
             }
             else
             {
-                result.object[getFieldName!(T, i)] = v.toJSONValue();
+                obj[getFieldName!(T, i)] = v.toJSONValue();
             }
         }
+        result = obj;
+    }
+    else
+    {
+        result = value;
     }
 
     return result;
@@ -138,9 +114,12 @@ private template getFieldName(Type, size_t i)
     enum getFieldName = __traits(identifier, Type.tupleof[i]);
 }
 
-template isNullable(T)
+template isNullable(N)
 {
-    static if (is(Unqual!T U: Nullable!U))
+    static if(is(N == Nullable!(T), T) ||
+              is(N == NullableRef!(T), T) ||
+              is(N == Nullable!(T, nV), T, alias nV) &&
+              is(typeof(nV) == T))
     {
         enum isNullable = true;
     }

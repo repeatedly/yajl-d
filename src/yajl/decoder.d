@@ -241,38 +241,8 @@ string formatStatus(yajl_handle handle, in const(char)[] json)
 @trusted
 void setParsedValue(T)(void* ctx, auto ref T value)
 {
-    import std.traits;
-
     Decoder* decoder = cast(Decoder*)ctx;
-    JSONValue v;
-
-    static if (is(T == typeof(null)))
-    {
-        v.type = JSON_TYPE.NULL;
-    }
-    else static if (isBoolean!T)
-    {
-        v.type = value ? JSON_TYPE.TRUE : JSON_TYPE.FALSE;
-    }
-    else static if (isIntegral!T)
-    {
-        v.integer = value;
-        v.type = JSON_TYPE.INTEGER;
-    }
-    else static if (isFloatingPoint!T)
-    {
-        v.floating = value;
-        v.type = JSON_TYPE.FLOAT;
-    }
-    else static if (isSomeString!T)
-    {
-        v.str = value;
-        v.type = JSON_TYPE.STRING;
-    }
-    else
-    {
-        static assert(false, "Non supported type");
-    }
+    JSONValue v = JSONValue(value);
 
     setParsedValueToContainer(decoder, v);
 }
@@ -340,8 +310,8 @@ extern(C)
 
     int callbackStartMap(void* ctx)
     {
-        JSONValue value;
-        value.type = JSON_TYPE.OBJECT;
+        JSONValue[string] obj;
+        JSONValue value = JSONValue(obj);
 
         Decoder* decoder = cast(Decoder*)ctx;
         decoder._nested++;
@@ -372,8 +342,8 @@ extern(C)
 
     int callbackStartArray(void* ctx)
     {
-        JSONValue value;
-        value.type = JSON_TYPE.ARRAY;
+        JSONValue[] arr;
+        JSONValue value = JSONValue(arr);
 
         Decoder* decoder = cast(Decoder*)ctx;
         decoder._nested++;

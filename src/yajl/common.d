@@ -48,11 +48,12 @@ template getFieldName(Type, size_t i)
     enum getFieldName = __traits(identifier, Type.tupleof[i]);
 }
 
-template isNullable(T)
+// Code from: http://forum.dlang.org/thread/tkxmfencyhgnxopcsljw@forum.dlang.org#post-mailman.294.1386309272.3242.digitalmars-d-learn:40puremagic.com
+template isNullable(N)
 {
-    import std.typecons : Nullable;
-
-    static if (is(Unqual!T U: Nullable!U))
+    static if(is(N == Nullable!(T), T) ||
+              is(N == NullableRef!(T), T) ||
+              is(N == Nullable!(T, nV), T, alias nV) && is(typeof(nV) == T))
     {
         enum isNullable = true;
     }
@@ -60,4 +61,19 @@ template isNullable(T)
     {
         enum isNullable = false;
     }
+}
+
+unittest
+{
+    import std.typecons : Nullable;
+
+    static assert(isNullable!(Nullable!int));
+    static assert(isNullable!(const Nullable!int));
+    static assert(isNullable!(immutable Nullable!int));
+
+    static assert(!isNullable!int);
+    static assert(!isNullable!(const int));
+
+    struct S {}
+    static assert(!isNullable!S);
 }
