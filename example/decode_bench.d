@@ -1,5 +1,5 @@
+import yajl;
 import yajl.decoder;
-import yajl.yajl;
 
 import std.json;
 import std.datetime;

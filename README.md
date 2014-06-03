@@ -27,7 +27,7 @@ dmd -Isrc libyajl-d.a -L-L/path/to/libdir -L-lyajl -run example/encode_bench.d
 * yajl.encode(value) / yajl.encode(value, opt)
 
 ```d
-import yajl.yajl;
+import yajl;
 
 struct Hoge
 { 
@@ -45,7 +45,7 @@ string json = encode(Hoge(100, "hey!", true));
 * yajl.decode(value) / yajl.decode(value, opt)
 
 ```d
-import yajl.yajl;
+import yajl;
 
 Hoge hoge = decode!Hoge(`{"id":100,"word":"hey!","yes":true}`);
 ```

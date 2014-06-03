@@ -1,4 +1,4 @@
-import yajl.yajl;
+import yajl;
 
 import std.datetime;
 import std.stdio;
