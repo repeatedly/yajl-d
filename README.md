@@ -72,6 +72,7 @@ encode and decode can take each Option argument. If you want to know more detail
 
 # Perfomance comparison
 
+D: dmd 2.065.0
 OS: Mac OS X ver 10.9<br />
 CPU: 2.6 GHz Intel Core i7<br />
 
@@ -80,10 +81,10 @@ CPU: 2.6 GHz Intel Core i7<br />
     <th></th><th>encode(QPS)</th><th>decode(QPS)</th><th>streaming decode(QPS)</th>
   </tr>
   <tr>
-    <td>std.json</td><td>227461</td><td>228267</td><td>Not supported</td>
+    <td>std.json</td><td>221455</td><td>197332</td><td>Not supported</td>
   </tr>
   <tr>
-    <td>yajl-d</td><td>656034</td><td>524611</td><td>803640</td>
+    <td>yajl-d</td><td>706175</td><td>530527</td><td>810994</td>
   </tr>
 </table>
 
