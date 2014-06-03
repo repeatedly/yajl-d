@@ -8,7 +8,7 @@ ifeq (,$(YAJL))
 	$(error There is no yajl library)
 endif
 
-DFLAGS = -Isrc -m$(MODEL) -w -d -property -L-l$(YAJL)
+DFLAGS = -Isrc -m$(MODEL) -w -d -L-l$(YAJL) #-property # disable -property for compiling with phobos functions
 
 LIB_NAME = libyajl-d
 LIB = $(LIB_NAME).a
