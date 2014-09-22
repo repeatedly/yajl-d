@@ -38,6 +38,11 @@ extern(C)
     yajl_alloc_funcs yajlAllocFuncs = yajl_alloc_funcs(&yajlMalloc, &yajlRealloc, &yajlFree);
 }
 
+struct JSONName
+{
+    string name;
+}
+
 template getFieldName(Type, size_t i)
 {
     import std.conv : text;
@@ -45,7 +50,19 @@ template getFieldName(Type, size_t i)
     static assert((is(Type == class) || is(Type == struct)), "Type must be class or struct: type = " ~ Type.stringof);
     static assert(i < Type.tupleof.length, text(Type.stringof, " has ", Type.tupleof.length, " attributes: given index = ", i));
 
-    enum getFieldName = __traits(identifier, Type.tupleof[i]);
+    string helper() {
+        foreach(attribute; __traits(getAttributes, Type.tupleof[i]))
+        {
+            static if(is(typeof(attribute) == JSONName))
+            {
+                return attribute.name;
+            }
+        }
+
+        return __traits(identifier, Type.tupleof[i]);
+    }
+
+    enum getFieldName = helper();
 }
 
 // Code from: http://forum.dlang.org/thread/tkxmfencyhgnxopcsljw@forum.dlang.org#post-mailman.294.1386309272.3242.digitalmars-d-learn:40puremagic.com

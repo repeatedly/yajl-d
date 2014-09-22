@@ -70,6 +70,25 @@ Decoder#decode is a straming decoder, so you can pass the insufficient json to t
 
 encode and decode can take each Option argument. If you want to know more details, see unittest of yajl.encoder / yajl.decoder.
 
+## Using a D keyword in JSON field names
+
+Since a field name cannot be a D keyword, for example body or out, the variable and JSON field must have separate names. For this, use the @JSONName("name") attribute:
+
+```d
+import yajl;
+
+struct Hoge
+{ 
+    ulong id;
+    @JSONName("body") string _body;
+    bool yes; 
+}
+
+// {"id":100,"body":"hey!","yes":true}
+string json = encode(Hoge(100, "hey!", true));
+```
+
+
 # Perfomance comparison
 
 D: dmd 2.065.0
