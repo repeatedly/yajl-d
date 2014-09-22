@@ -124,7 +124,7 @@ struct Decoder
             _handle = yajl_alloc(&yajlCallbacks, &yajlAllocFuncs, &this);
 
         if (_nested == 0)
-            _stack.clear();
+            _stack.destroy();
     }
 
     void clear()
