@@ -5,6 +5,7 @@ module yajl.common;
 import yajl.c.common;
 
 import core.memory : GC;
+import std.typecons : Nullable;
 
 /// Exception for yajl-d
 class YajlException : Exception
@@ -50,10 +51,10 @@ template getFieldName(Type, size_t i)
     static assert((is(Type == class) || is(Type == struct)), "Type must be class or struct: type = " ~ Type.stringof);
     static assert(i < Type.tupleof.length, text(Type.stringof, " has ", Type.tupleof.length, " attributes: given index = ", i));
 
-    string helper() {
-        foreach(attribute; __traits(getAttributes, Type.tupleof[i]))
-        {
-            static if(is(typeof(attribute) == JSONName))
+    string helper()
+    {
+        foreach (attribute; __traits(getAttributes, Type.tupleof[i])) {
+            static if (is(typeof(attribute) == JSONName))
             {
                 return attribute.name;
             }
@@ -82,8 +83,6 @@ template isNullable(N)
 
 unittest
 {
-    import std.typecons : Nullable;
-
     static assert(isNullable!(Nullable!int));
     static assert(isNullable!(const Nullable!int));
     static assert(isNullable!(immutable Nullable!int));

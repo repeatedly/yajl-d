@@ -158,6 +158,21 @@ unittest
     }
 }
 
+unittest
+{
+    static struct JSONNameTest
+    {
+        @JSONName("body") string _body;
+    }
+
+    JSONNameTest jnt = JSONNameTest("body!");
+
+    {
+        Encoder encoder;
+        assert(encoder.encode(jnt) == `{"body":"body!"}`);
+    }
+}
+
 private:
 
 @trusted
@@ -224,7 +239,7 @@ void yajlGenerate(T)(yajl_gen gen, auto ref T value)
         }
 
         checkStatus(yajl_gen_map_open(gen));
-        foreach(i, ref v; value.tupleof) {
+        foreach (i, ref v; value.tupleof) {
             static if (isNullable!(typeof(v)))
             {
                 if (!v.isNull) {
