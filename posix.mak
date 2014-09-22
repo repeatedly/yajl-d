@@ -57,5 +57,5 @@ MAIN_FILE = "empty_yajl_unittest.d"
 unittest:
 	make -f posix.mak
 	echo 'import yajl.yajl; void main(){}' > $(MAIN_FILE)
-	$(DMD) $(DFLAGS) -unittest -of$(LIB) $(YAJL_OPTS) $(SRCS) $(LIB) -L-lyajl -run $(MAIN_FILE)
+	$(DMD) $(DFLAGS) -unittest -of$(LIB) $(YAJL_OPTS) $(SRCS) $(LIB) -run $(MAIN_FILE)
 	rm $(MAIN_FILE)
