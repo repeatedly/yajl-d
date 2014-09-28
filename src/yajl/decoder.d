@@ -303,7 +303,7 @@ extern(C)
 
     int callbackString(void* ctx, const(ubyte)* buf, size_t len)
     {
-        setParsedValue(ctx, cast(string)(buf[0..len]));
+        setParsedValue(ctx, cast(string)(buf[0..len].dup));
 
         return 1;
     }
