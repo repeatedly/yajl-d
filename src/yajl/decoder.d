@@ -398,6 +398,11 @@ T fromJSONValue(T)(ref const JSONValue value)
     {
         result = fromJSONValue!U(value);
     }
+    else static if (is(Unqual!T == enum))
+    {
+        auto temp = fromJSONValue!(OriginalType!T)(value);
+        result = cast(T)(temp);
+    }
     else static if (isBoolean!T)
     {
         if (value.type != JSON_TYPE.TRUE && value.type != JSON_TYPE.FALSE)
