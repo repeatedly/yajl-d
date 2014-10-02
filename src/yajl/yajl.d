@@ -2,9 +2,9 @@
 
 module yajl.yajl;
 
-import yajl.common;
-import yajl.decoder;
-import yajl.encoder;
+public import yajl.common;
+public import yajl.decoder;
+public import yajl.encoder;
 
 /**
  * Short-cut for Decoder.decode.

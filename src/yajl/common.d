@@ -17,6 +17,11 @@ class YajlException : Exception
     }
 }
 
+struct JSONName
+{
+    string name;
+}
+
 package:
 
 extern(C)
@@ -37,11 +42,6 @@ extern(C)
     }
 
     yajl_alloc_funcs yajlAllocFuncs = yajl_alloc_funcs(&yajlMalloc, &yajlRealloc, &yajlFree);
-}
-
-struct JSONName
-{
-    string name;
 }
 
 template getFieldName(Type, size_t i)
