@@ -240,6 +240,13 @@ unittest
         assert(decoder.decodedValue!(Handa).id == 1000);
         assert(count == 2);
     }
+    { // parse non-json object
+        Decoder decoder;
+        try {
+            decoder.decode(`"string"`);
+            assert(false, "Why reach here?");
+        } catch (Exception e) { }
+    }
 }
 
 private:
@@ -258,8 +265,12 @@ string formatStatus(yajl_handle handle, in const(char)[] json)
 @trusted
 void setParsedValue(T)(void* ctx, auto ref T value)
 {
+    import std.conv : text;
+
     Decoder* decoder = cast(Decoder*)ctx;
     JSONValue v = JSONValue(value);
+    if (decoder._nested == 0)
+        throw new YajlException(text("JSON must be object or array: type = ", v.type));
 
     setParsedValueToContainer(decoder, v);
 }
