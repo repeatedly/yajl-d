@@ -8,15 +8,15 @@ ifeq (,$(YAJL))
 	$(error There is no yajl library)
 endif
 
-DFLAGS = -Isrc -m$(MODEL) -w -d -L-l$(YAJL) #-property # disable -property for compiling with phobos functions
+DEFAULT_FLAGS = -Isrc -m$(MODEL) -w -d -L-l$(YAJL) #-property # disable -property for compiling with phobos functions
 
 LIB_NAME = libyajl-d
 LIB = $(LIB_NAME).a
 
 ifeq ($(BUILD),debug)
-	DFLAGS += -g -debug
+	DFLAGS = $(DEFAULT_FLAGS) -g -debug
 else
-	DFLAGS += -O -release -nofloat -inline -noboundscheck
+	DFLAGS = $(DEFAULT_FLAGS) -O -release -nofloat -inline -noboundscheck
 endif
 
 ifeq (,$(YAJL_LIBDIR))
@@ -28,6 +28,7 @@ endif
 D_INSTALL_PATH ?= ~/usr/local/d
 
 SRCS = \
+	src/yajl/package.d \
 	src/yajl/common.d \
 	src/yajl/yajl.d \
 	src/yajl/encoder.d \
@@ -55,7 +56,6 @@ clean:
 MAIN_FILE = "empty_yajl_unittest.d"
 
 unittest:
-	make -f posix.mak
-	echo 'import yajl.yajl; void main(){}' > $(MAIN_FILE)
-	$(DMD) $(DFLAGS) -unittest -of$(LIB) $(YAJL_OPTS) $(SRCS) $(LIB) -run $(MAIN_FILE)
+	echo 'import yajl; void main(){}' > $(MAIN_FILE)
+	$(DMD) $(DEFAULT_FLAGS) -unittest $(YAJL_OPTS) $(SRCS) -run $(MAIN_FILE)
 	rm $(MAIN_FILE)
