@@ -17,7 +17,7 @@ make
 Need to link yajl library
 
 ```sh
-dmd -Isrc libyajl-d.a -L-L/path/to/libdir -L-lyajl -run example/encode_bench.d
+dmd -Isrc src/**/*.d -L-lyajl -run example/encode_bench.d
 ```
 
 # Usage
@@ -70,6 +70,34 @@ Decoder#decode is a straming decoder, so you can pass the insufficient json to t
 
 encode and decode can take each Option argument. If you want to know more details, see unittest of yajl.encoder / yajl.decoder.
 
+### Set callback to detect missing field
+
+You can set own callback to `Decoder.Option.missingHandler`.
+Here is an example:
+
+```d
+import yajl;
+import std.stdio;
+
+struct Test
+{
+  string name;
+  int age;
+}
+
+void main()
+{
+  auto test = Test("Bob", 20);
+  auto encoded = `{ "name": "Bob", "age": 20}`;
+  auto missing = `{ "name": "Bob"}`;
+
+  Decoder.Option opt;
+  opt.missingHandler = (string field) { writeln(field); };
+  writeln(decode!Test(encoded, opt));
+  writeln(decode!Test(missing, opt)); // Callback called with missing field
+}
+```
+
 ## Using a D keyword in JSON field names
 
 Since a field name cannot be a D keyword, for example body or out, the variable and JSON field must have separate names. For this, use the @JSONName("name") attribute:
@@ -87,7 +115,6 @@ struct Hoge
 // {"id":100,"body":"hey!","yes":true}
 string json = encode(Hoge(100, "hey!", true));
 ```
-
 
 # Perfomance comparison
 

@@ -32,6 +32,8 @@ import std.conv;
  */
 struct Decoder
 {
+    alias void delegate(string) MissingHandler;
+
     /// See: http://lloyd.github.com/yajl/yajl-2.0.1/yajl__parse_8h.html#a5434a7c3b3165d782ea42c17d6ba9ac3
     static struct Option
     {
@@ -40,6 +42,8 @@ struct Decoder
         bool allowTrailingGarbage;
         bool allowMultipleValues;
         bool allowPartialValue;
+
+        MissingHandler missingHandler;
     }
 
   private:
@@ -60,6 +64,7 @@ struct Decoder
     yajl_handle _handle;
     Container[] _stack;
     size_t _nested;
+    MissingHandler _missingHandler;
 
   public:
     /**
@@ -69,7 +74,7 @@ struct Decoder
     this(ref Option opt)
     {
         initialize();
-        setDecoderConfig(_handle, opt);
+        setDecoderConfig(opt);
     }
 
     @trusted
@@ -91,7 +96,7 @@ struct Decoder
         /// ditto
         inout(T) decodedValue(T = JSONValue)() inout if (!is(T : JSONValue))
         {
-            return cast(inout(T))fromJSONValue!T(_stack[0].value);
+            return cast(inout(T))fromJSONValue!T(_stack[0].value, this);
         }
     }
 
@@ -143,18 +148,20 @@ struct Decoder
     }
 
     @trusted
-    static void setDecoderConfig(yajl_handle handle, ref Decoder.Option opt)
+    void setDecoderConfig(ref Decoder.Option opt)
     {
         if (opt.allowComments)
-            yajl_config(handle, yajl_option.yajl_allow_comments, 1);
+            yajl_config(_handle, yajl_option.yajl_allow_comments, 1);
         if (opt.dontValidateStrings)
-            yajl_config(handle, yajl_option.yajl_dont_validate_strings, 1);
+            yajl_config(_handle, yajl_option.yajl_dont_validate_strings, 1);
         if (opt.allowTrailingGarbage)
-            yajl_config(handle, yajl_option.yajl_allow_trailing_garbage, 1);
+            yajl_config(_handle, yajl_option.yajl_allow_trailing_garbage, 1);
         if (opt.allowMultipleValues)
-            yajl_config(handle, yajl_option.yajl_allow_multiple_values, 1);
+            yajl_config(_handle, yajl_option.yajl_allow_multiple_values, 1);
         if (opt.allowPartialValue)
-            yajl_config(handle, yajl_option.yajl_allow_partial_values, 1);
+            yajl_config(_handle, yajl_option.yajl_allow_partial_values, 1);
+        if (opt.missingHandler)
+            _missingHandler = opt.missingHandler;
     }
 }
 
@@ -222,6 +229,16 @@ unittest
         Decoder decoder;
         assert(decoder.decode(composed));
         assert(decoder.decodedValue!(Sect[]) == [Sect(), Sect(), Sect()]);
+    }
+    { // with missing handler
+        int count = 0;
+        Decoder.Option opt;
+        opt.missingHandler = (string fieldName) { count++; };
+
+        Decoder decoder = Decoder(opt);
+        assert(decoder.decode(`{"id":1000,"name":"shinobu"}`));
+        assert(decoder.decodedValue!(Handa).id == 1000);
+        assert(count == 2);
     }
 }
 
@@ -379,7 +396,7 @@ extern(C)
 }
 
 @trusted
-T fromJSONValue(T)(ref const JSONValue value)
+T fromJSONValue(T)(ref const JSONValue value, ref const Decoder decoder)
 {
     import std.array : array;
     import std.algorithm : map;
@@ -396,11 +413,11 @@ T fromJSONValue(T)(ref const JSONValue value)
 
     static if (is(Unqual!T U: Nullable!U))
     {
-        result = fromJSONValue!U(value);
+        result = fromJSONValue!U(value, decoder);
     }
     else static if (is(Unqual!T == enum))
     {
-        auto temp = fromJSONValue!(OriginalType!T)(value);
+        auto temp = fromJSONValue!(OriginalType!T)(value, decoder);
         result = cast(T)(temp);
     }
     else static if (isBoolean!T)
@@ -445,7 +462,7 @@ T fromJSONValue(T)(ref const JSONValue value)
             return null;
         if (value.type != JSON_TYPE.ARRAY)
             typeMismatch("array");
-        result = array(map!((a){ return fromJSONValue!(ElementType!T)(a); })(value.array));
+        result = array(map!((a){ return fromJSONValue!(ElementType!T)(a, decoder); })(value.array));
     }
     else static if (isAssociativeArray!T)
     {
@@ -454,7 +471,7 @@ T fromJSONValue(T)(ref const JSONValue value)
         if (value.type != JSON_TYPE.OBJECT)
             typeMismatch("object");
         foreach (k, v; value.object)
-            result[k] = fromJSONValue!(ValueType!T)(v);
+            result[k] = fromJSONValue!(ValueType!T)(v, decoder);
     }
     else static if (is(T == struct) || is(T == class))
     {
@@ -473,9 +490,14 @@ T fromJSONValue(T)(ref const JSONValue value)
         }
 
         foreach(i, ref v; result.tupleof) {
-            auto field = getFieldName!(T, i) in value.object;
-            if (field)
-                v = fromJSONValue!(typeof(v))(*field);
+            immutable fieldName = getFieldName!(T, i);
+            auto field = fieldName in value.object;
+            if (field) {
+                v = fromJSONValue!(typeof(v))(*field, decoder);
+            } else {
+                if (decoder._missingHandler)
+                    decoder._missingHandler(fieldName);
+            }
         }
     }
 
