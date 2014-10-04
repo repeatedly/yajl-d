@@ -34,7 +34,7 @@ struct Decoder
 {
     alias void delegate(string) MissingHandler;
 
-    /// See: http://lloyd.github.com/yajl/yajl-2.0.1/yajl__parse_8h.html#a5434a7c3b3165d782ea42c17d6ba9ac3
+    /// See: http://lloyd.github.io/yajl/yajl-2.1.0/yajl__parse_8h.html#a5434a7c3b3165d782ea42c17d6ba9ac3
     static struct Option
     {
         bool allowComments;

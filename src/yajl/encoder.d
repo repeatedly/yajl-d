@@ -44,7 +44,7 @@ struct Encoder
 {
     //alias yajl_print_t PrintCallback;
 
-    /// See: http://lloyd.github.com/yajl/yajl-2.0.1/yajl__gen_8h.html#a57c29080044a7231ac0cf1fead4de4b0
+    /// See: http://lloyd.github.io/yajl/yajl-2.1.0/yajl__gen_8h.html#a57c29080044a7231ac0cf1fead4de4b0
     static struct Option
     {
         bool beautify;
