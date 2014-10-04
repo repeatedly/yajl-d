@@ -6,13 +6,15 @@ yajl-d is based on YAJL and work on 2.1.0 or later.
 
 # Install
 
-Run make for generating libyajld.a
+Add `yajl` to `dependencies` of package.json.
 
-```sh
-make
+```json
+  "dependencies": {
+    "yajl": ">=0.2.0"
+  }
 ```
 
-## run example
+# Run example
 
 Need to link yajl library
 
@@ -64,11 +66,11 @@ if (decoder.decode(`{"id":100,"word":"hey!","yes":true}`) {
 }
 ```
 
-Decoder#decode is a straming decoder, so you can pass the insufficient json to this method. If Decoder#decode can't parse completely, Decoder#decode returns false.
+Decoder#decode is a straming decoder, so you can pass the insufficient json to this method. If Decoder#decode can't parse completely, Decoder#decode returns `false`.
 
 ## Encoder.Option and Decoder.Option
 
-encode and decode can take each Option argument. If you want to know more details, see unittest of yajl.encoder / yajl.decoder.
+`encode` and `decode` can take each Option argument. If you want to know more details, see unittest of yajl.encoder / yajl.decoder.
 
 ### Set callback to detect missing field
 
