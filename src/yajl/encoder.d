@@ -80,8 +80,6 @@ struct Encoder
     @trusted
     string encode(T)(auto ref T value)
     {
-        // YAJL2 doesn't provide reset API to resue object.
-        // See: https://github.com/lloyd/yajl/pull/76
         initialize();
 
         yajlGenerate(_gen, value);
@@ -92,6 +90,9 @@ struct Encoder
         yajl_gen_get_buf(_gen, &resultBuffer, &resultLength);
 
         string result = cast(string)resultBuffer[0..resultLength].dup;
+
+        // reset state and internal buffer for next encode
+        yajl_gen_reset(_gen, null);
         yajl_gen_clear(_gen);
 
         return result;

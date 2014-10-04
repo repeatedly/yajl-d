@@ -45,4 +45,5 @@ yajl_gen_status yajl_gen_map_close (yajl_gen hand);
 yajl_gen_status yajl_gen_array_open (yajl_gen hand);
 yajl_gen_status yajl_gen_array_close (yajl_gen hand);
 yajl_gen_status yajl_gen_get_buf (yajl_gen hand, const(ubyte*)* buf, size_t* len);
+void yajl_gen_reset (yajl_gen g, const(char)* sep);
 void yajl_gen_clear (yajl_gen hand);
