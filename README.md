@@ -2,7 +2,7 @@
 
 yajl-d is a YAJL binding for D.
 
-yajl-d is based on YAJL2 and tested with YAJL 2.0.5.
+yajl-d is based on YAJL and work on 2.1.0 or later.
 
 # Install
 
@@ -116,21 +116,22 @@ struct Hoge
 string json = encode(Hoge(100, "hey!", true));
 ```
 
-# Perfomance comparison
+# Perfomance
 
-D: dmd 2.065.0
+D: dmd 2.066.0<br />
+yajl: 2.1.0<br />
 OS: Mac OS X ver 10.9<br />
 CPU: 2.6 GHz Intel Core i7<br />
 
 <table>
   <tr>
-    <th></th><th>encode(QPS)</th><th>decode(QPS)</th><th>streaming decode(QPS)</th>
+    <th></th><th>encode(QPS)</th><th>multi encode(QPS)</th><th>decode(QPS)</th><th>multi decode(QPS)</th>
   </tr>
   <tr>
-    <td>std.json</td><td>221455</td><td>197332</td><td>Not supported</td>
+    <td>std.json</td><td>262272</td><td>Not supported</td><td>287072</td><td>Not supported</td>
   </tr>
   <tr>
-    <td>yajl-d</td><td>706175</td><td>530527</td><td>810994</td>
+    <td>yajl-d</td><td>700098</td><td>948965</td><td>514065</td><td>775532</td>
   </tr>
 </table>
 

@@ -29,7 +29,7 @@ void main()
             parseJSON(`{"id":1000,"name":"shinobu","height":169.5}`);
         }
         sw.stop();
-        writefln("json:         %s QPS", Num / sw.peek().to!("seconds", real));
+        writefln("json:        %s QPS", Num / sw.peek().to!("seconds", real));
     }
     {
         auto sw = StopWatch(AutoStart.yes);
@@ -37,7 +37,7 @@ void main()
             decode(`{"id":1000,"name":"shinobu","height":169.5}`);
         }
         sw.stop();
-        writefln("yajl(one):    %s QPS", Num / sw.peek().to!("seconds", real));
+        writefln("yajl(one):   %s QPS", Num / sw.peek().to!("seconds", real));
     }
     {
         auto sw = StopWatch(AutoStart.yes);
@@ -45,7 +45,7 @@ void main()
             decode!(Handa)(`{"id":1000,"name":"shinobu","height":169.5}`);
         }
         sw.stop();
-        writefln("yajl(conv):   %s QPS", Num / sw.peek().to!("seconds", real));
+        writefln("yajl(conv):  %s QPS", Num / sw.peek().to!("seconds", real));
     }
     {
         auto sw = StopWatch(AutoStart.yes);
@@ -57,6 +57,6 @@ void main()
             decoder.decodedValue;
         }
         sw.stop();
-        writefln("yajl(stream): %s QPS", Num / sw.peek().to!("seconds", real));
+        writefln("yajl(multi): %s QPS", Num / sw.peek().to!("seconds", real));
     }
 }
